@@ -17,22 +17,22 @@ import org.kodein.di.instance
 class MoviesActivity : ComponentActivity(), DIAware {
 
     override val di: DI by closestDI()
-    private val viewManager: MoviesUserActionManager by instance(TagsDI.Presenter.Movies)
+    private val actionManager: MoviesUserActionManager by instance(TagsDI.Presenter.Movies)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewManager.runEvent(MoviesUserAction.LoadPage(500, 500))
+        actionManager.runEvent(MoviesUserAction.LoadPage(500, 500))
 
         setContent {
             OKMoviesPlaceTheme {
-                MoviesScreen(viewManager)
+                MoviesScreen(actionManager)
             }
         }
     }
 
     override fun onDestroy() {
-        viewManager.destroyScope()
+        actionManager.destroyScope()
         super.onDestroy()
     }
 }
