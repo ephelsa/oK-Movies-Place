@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -34,6 +33,7 @@ import com.github.ephelsa.okmoviesplace.android.R
 import com.github.ephelsa.okmoviesplace.android.ui.theme.Colors
 import com.github.ephelsa.okmoviesplace.android.ui.theme.OKMoviesPlaceTheme
 import com.github.ephelsa.okmoviesplace.android.ui.theme.Shapes
+import com.github.ephelsa.okmoviesplace.android.ui.utils.shimmerEffectColor
 
 /**
  * Coming Soon card design.
@@ -42,19 +42,20 @@ import com.github.ephelsa.okmoviesplace.android.ui.theme.Shapes
  * @param imagePath is the background image.
  * @param onClick click action when the icon is pressed.
  */
-@ExperimentalMaterialApi
 @Composable
 fun ComingSoonCard(
     modifier: Modifier = Modifier,
-    title: String,
-    imagePath: String,
+    title: String?,
+    imagePath: String?,
     onPlay: () -> Unit,
     onClick: () -> Unit,
 ) {
+    val isDisplayable = title != null
+
     Surface(
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .clickable(onClick = onClick),
+            .clickable(enabled = title != null, onClick = onClick),
         shape = Shapes.CardRoundedCornerShape,
         elevation = 4.dp,
     ) {
@@ -66,50 +67,67 @@ fun ComingSoonCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .aspectRatio(1.6f)
-                .background(Colors.Onyx)
+                .background(shimmerEffectColor())
         )
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.surface.copy(alpha = 0.1f))
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 14.dp
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                    text = title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.h6,
-                    color = Colors.MintCream
-                )
-
-                Icon(
-                    imageVector = Icons.Outlined.Send,
-                    contentDescription = stringResource(R.string.contentDescription_movieDetails),
+        if (isDisplayable) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Row(
                     modifier = Modifier
-                        .rotate(-45.0f)
-                        .size(20.dp),
-                    tint = Colors.MintCream,
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.surface.copy(alpha = 0.1f))
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 14.dp
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        text = title.toString(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.h6,
+                        color = Colors.MintCream
+                    )
+
+                    Icon(
+                        imageVector = Icons.Outlined.Send,
+                        contentDescription = stringResource(R.string.contentDescription_movieDetails),
+                        modifier = Modifier
+                            .rotate(-45.0f)
+                            .size(20.dp),
+                        tint = Colors.MintCream,
+                    )
+                }
+
+                PlayButton(
+                    modifier = Modifier.align(Alignment.Center),
+                    playTitle = "",
+                    onClick = onPlay
                 )
             }
-
-            PlayButton(
-                modifier = Modifier.align(Alignment.Center),
-                playTitle = "",
-                onClick = onPlay
-            )
         }
     }
 }
 
-@ExperimentalMaterialApi
+/**
+ * ComingSoonCard in loading state
+ */
+@Composable
+fun ComingSoonCard(
+    modifier: Modifier = Modifier,
+) {
+    ComingSoonCard(
+        modifier,
+        null,
+        null,
+        {},
+        {}
+    )
+}
+
 @Preview
 @Composable
 private fun ComingSoonCardPreview() {
