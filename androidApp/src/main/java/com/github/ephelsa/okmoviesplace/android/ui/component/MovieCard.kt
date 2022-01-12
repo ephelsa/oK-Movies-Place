@@ -32,6 +32,7 @@ import com.github.ephelsa.okmoviesplace.android.ui.theme.Spaces
 import com.github.ephelsa.okmoviesplace.android.ui.utils.shimmerEffectColor
 import com.github.ephelsa.okmoviesplace.android.ui.utils.toDp
 import com.github.ephelsa.okmoviesplace.model.Genre
+import com.github.ephelsa.okmoviesplace.model.ImagePath
 import com.github.ephelsa.okmoviesplace.model.Movie
 
 @Composable
@@ -57,7 +58,7 @@ fun MovieCard(
     ) {
         Image(
             painter = rememberImagePainter(
-                data = movie?.imagePath,
+                data = movie?.imagePath?.poster,
             ),
             contentDescription = movie?.title,
             contentScale = ContentScale.Crop,
@@ -135,7 +136,10 @@ fun MovieCard(
 private fun MovieCardPreview() {
     val movie = Movie(
         id = 1,
-        imagePath = "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imagePath = ImagePath(
+            "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+            "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+        ),
         title = "Angel Has Fallen asasdasdasdasdasdasdasdasdasdasd",
         isAdult = true,
         votesAverage = 5.0,

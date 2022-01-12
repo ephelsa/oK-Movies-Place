@@ -34,6 +34,7 @@ import com.github.ephelsa.okmoviesplace.android.ui.theme.Colors
 import com.github.ephelsa.okmoviesplace.android.ui.theme.OKMoviesPlaceTheme
 import com.github.ephelsa.okmoviesplace.android.ui.theme.Shapes
 import com.github.ephelsa.okmoviesplace.android.ui.utils.shimmerEffectColor
+import com.github.ephelsa.okmoviesplace.model.ImagePath
 
 /**
  * Coming Soon card design.
@@ -46,7 +47,7 @@ import com.github.ephelsa.okmoviesplace.android.ui.utils.shimmerEffectColor
 fun ComingSoonCard(
     modifier: Modifier = Modifier,
     title: String?,
-    imagePath: String?,
+    imagePath: ImagePath?,
     onPlay: () -> Unit,
     onClick: () -> Unit,
 ) {
@@ -61,7 +62,7 @@ fun ComingSoonCard(
     ) {
         Image(
             painter = rememberImagePainter(
-                data = imagePath,
+                data = imagePath?.backdrop,
             ),
             contentDescription = title,
             contentScale = ContentScale.Crop,
@@ -134,7 +135,10 @@ private fun ComingSoonCardPreview() {
     OKMoviesPlaceTheme {
         ComingSoonCard(
             title = "Dora And The Lost City Of Gold",
-            imagePath = "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+            imagePath = ImagePath(
+                "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+                "https://images.unsplash.com/photo-1433162653888-a571db5ccccf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+            ),
             onPlay = {},
             onClick = {}
         )
