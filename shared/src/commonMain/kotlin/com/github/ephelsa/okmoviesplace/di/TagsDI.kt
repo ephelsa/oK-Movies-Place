@@ -7,5 +7,6 @@ object TagsDI {
 
     object Presenter {
         const val Movies = "Movies Presenter Stuff"
+        const val Favorites = "Favorites Presenter Stuff"
     }
 }

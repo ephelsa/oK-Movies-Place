@@ -1,4 +1,9 @@
 package com.github.ephelsa.okmoviesplace.presenter.favorites
 
-class FavoritesUserAction {
+import com.github.ephelsa.okmoviesplace.presenter.UserAction
+
+sealed class FavoritesUserAction : UserAction {
+    data class LoadPage(
+        val posterWidth: Int,
+    ) : FavoritesUserAction()
 }
