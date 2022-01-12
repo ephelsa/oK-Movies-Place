@@ -1,4 +1,4 @@
-package com.github.ephelsa.okmoviesplace.android.ui.screen
+package com.github.ephelsa.okmoviesplace.android.ui.screen.movies
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -21,7 +22,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.ephelsa.okmoviesplace.android.R
-import com.github.ephelsa.okmoviesplace.android.movies.MoviesViewModel
 import com.github.ephelsa.okmoviesplace.android.ui.component.ComingSoonCard
 import com.github.ephelsa.okmoviesplace.android.ui.component.DiscoveryFeature
 import com.github.ephelsa.okmoviesplace.android.ui.component.DiscoveryFeatureTab
@@ -29,22 +29,37 @@ import com.github.ephelsa.okmoviesplace.android.ui.component.MovieCard
 import com.github.ephelsa.okmoviesplace.android.ui.component.PillButtonRowList
 import com.github.ephelsa.okmoviesplace.android.ui.component.PillTextButton
 import com.github.ephelsa.okmoviesplace.android.ui.theme.Spaces
+import com.github.ephelsa.okmoviesplace.model.Genre
+import com.github.ephelsa.okmoviesplace.model.Movie
+import com.github.ephelsa.okmoviesplace.presenter.movies.MoviesUIState
+import com.github.ephelsa.okmoviesplace.presenter.movies.MoviesUserActionManager
 
 @ExperimentalMaterialApi
 @Composable
 fun MoviesScreen(
-    viewModel: MoviesViewModel,
+    actionManager: MoviesUserActionManager,
 ) {
-    DiscoveryFeature(DiscoveryFeatureTab.Movies) {
+    val moviesState: MoviesUIState? by actionManager.onState.collectAsState()
+
+    DiscoveryFeature(actionManager.navigation, DiscoveryFeatureTab.Movies) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(Spaces.MediumHigh)
         ) {
-            ComingSoonSection(viewModel)
-            GenresSection(viewModel)
-            TrendingNowSection(viewModel)
+            when (moviesState) {
+                MoviesUIState.Error -> TODO()
+                MoviesUIState.FirstIn -> TODO()
+                MoviesUIState.Loading, null -> {
+                    CircularProgressIndicator()
+                }
+                is MoviesUIState.Ready -> {
+                    ComingSoonSection((moviesState as MoviesUIState.Ready).comingSoonMovies)
+                    GenresSection((moviesState as MoviesUIState.Ready).movieGenres)
+                    TrendingNowSection((moviesState as MoviesUIState.Ready).trendingNowMovies)
+                }
+            }
         }
     }
 }
@@ -52,9 +67,8 @@ fun MoviesScreen(
 @ExperimentalMaterialApi
 @Composable
 fun ComingSoonSection(
-    viewModel: MoviesViewModel,
+    upcomingMovies: List<Movie>,
 ) {
-    val upcomingMovies by viewModel.onUpcomingMovies.collectAsState()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardSize = screenWidth - (Spaces.Medium * 2)
 
@@ -73,7 +87,7 @@ fun ComingSoonSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(Spaces.Medium)
         ) {
-            items(upcomingMovies ?: emptyList()) {
+            items(upcomingMovies) {
                 ComingSoonCard(
                     modifier = Modifier.width(cardSize),
                     title = it.title,
@@ -92,15 +106,13 @@ fun ComingSoonSection(
 
 @Composable
 fun GenresSection(
-    viewModel: MoviesViewModel,
+    movieGenres: List<Genre>,
 ) {
-    val movieGenres by viewModel.onMovieGenres.collectAsState()
-
     PillButtonRowList(
         modifier = Modifier
             .padding(horizontal = Spaces.Medium)
     ) {
-        items(movieGenres ?: emptyList()) {
+        items(movieGenres) {
             PillTextButton(text = it.name)
         }
     }
@@ -108,10 +120,8 @@ fun GenresSection(
 
 @Composable
 fun TrendingNowSection(
-    viewModel: MoviesViewModel,
+    trendingMovies: List<Movie>,
 ) {
-    val movies by viewModel.onTrendingMovies.collectAsState()
-
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -127,7 +137,7 @@ fun TrendingNowSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(Spaces.Medium)
         ) {
-            items(movies ?: emptyList()) {
+            items(trendingMovies) {
                 MovieCard(
                     movie = it,
                     showAll = true
