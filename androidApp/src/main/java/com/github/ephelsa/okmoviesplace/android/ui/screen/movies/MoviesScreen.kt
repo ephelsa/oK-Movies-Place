@@ -1,23 +1,27 @@
 package com.github.ephelsa.okmoviesplace.android.ui.screen.movies
 
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,15 +30,16 @@ import com.github.ephelsa.okmoviesplace.android.ui.component.ComingSoonCard
 import com.github.ephelsa.okmoviesplace.android.ui.component.DiscoveryFeature
 import com.github.ephelsa.okmoviesplace.android.ui.component.DiscoveryFeatureTab
 import com.github.ephelsa.okmoviesplace.android.ui.component.MovieCard
+import com.github.ephelsa.okmoviesplace.android.ui.component.PillButton
 import com.github.ephelsa.okmoviesplace.android.ui.component.PillButtonRowList
 import com.github.ephelsa.okmoviesplace.android.ui.component.PillTextButton
+import com.github.ephelsa.okmoviesplace.android.ui.component.SectionTitle
 import com.github.ephelsa.okmoviesplace.android.ui.theme.Spaces
 import com.github.ephelsa.okmoviesplace.model.Genre
 import com.github.ephelsa.okmoviesplace.model.Movie
 import com.github.ephelsa.okmoviesplace.presenter.movies.MoviesUIState
 import com.github.ephelsa.okmoviesplace.presenter.movies.MoviesUserActionManager
 
-@ExperimentalMaterialApi
 @Composable
 fun MoviesScreen(
     actionManager: MoviesUserActionManager,
@@ -52,19 +57,71 @@ fun MoviesScreen(
                 MoviesUIState.Error -> TODO()
                 MoviesUIState.FirstIn -> TODO()
                 MoviesUIState.Loading, null -> {
-                    CircularProgressIndicator()
+                    LoadingMoviesScreen()
                 }
                 is MoviesUIState.Ready -> {
-                    ComingSoonSection((moviesState as MoviesUIState.Ready).comingSoonMovies)
-                    GenresSection((moviesState as MoviesUIState.Ready).movieGenres)
-                    TrendingNowSection((moviesState as MoviesUIState.Ready).trendingNowMovies)
+                    val content = (moviesState as MoviesUIState.Ready)
+
+                    ComingSoonSection(content.comingSoonMovies)
+                    GenresSection(content.movieGenres)
+                    TrendingNowSection(content.trendingNowMovies)
                 }
             }
         }
     }
 }
 
-@ExperimentalMaterialApi
+@Composable
+fun LoadingMoviesScreen() {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val trendingListState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        trendingListState.scrollBy(screenWidth.value)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spaces.Medium),
+        verticalArrangement = Arrangement.spacedBy(Spaces.Medium)
+    ) {
+        SectionTitle()
+        ComingSoonCard()
+
+        PillButtonRowList {
+            item { PillButton() }
+            item { PillButton() }
+            item { PillButton() }
+            item { PillButton() }
+        }
+
+        SectionTitle()
+        Row(
+            modifier = Modifier.horizontalScroll(trendingListState, false),
+        ) {
+            val trendingCardOffset = screenWidth * 0.1f
+
+            MovieCard(
+                modifier = Modifier
+                    .scale(0.7f)
+                    .offset(trendingCardOffset),
+                showAll = false
+            )
+            MovieCard(
+                modifier = Modifier.scale(0.9f),
+                showAll = true
+            )
+            MovieCard(
+                modifier = Modifier
+                    .scale(0.7f)
+                    .offset(-trendingCardOffset),
+                showAll = false
+            )
+        }
+    }
+}
+
 @Composable
 fun ComingSoonSection(
     upcomingMovies: List<Movie>,
@@ -78,11 +135,7 @@ fun ComingSoonSection(
             .padding(horizontal = Spaces.Medium),
         verticalArrangement = Arrangement.spacedBy(Spaces.Medium)
     ) {
-
-        Text(
-            text = stringResource(R.string.label_comingSoon),
-            style = MaterialTheme.typography.h1,
-        )
+        SectionTitle(stringResource(R.string.label_comingSoon))
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(Spaces.Medium)
